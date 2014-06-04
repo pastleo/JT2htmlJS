@@ -13,12 +13,12 @@
     <script>
     var jt2html;
     $.ajax({
-        url:"https://spreadsheets.google.com/feeds/list/17F1pLjK_U92ROo1Y-etn68YXoda72Dm8GCBJYZlIWOE/od6/public/values?alt=json",
+        url:"https://spreadsheets.google.com/feeds/list/1huBErviY2ehb7duwyI5mOzc9y3Ia5yBFQTvPaTyVfFM/od6/public/values?alt=json",
         success:function(data){
             console.log(data);
             jt2html=JT2html(data.feed.entry);
         }
-    })
+    });
     </script>
     
     <style>
