@@ -7,7 +7,7 @@ Generate HTML from JSON and Template by Javascript. By default,there is a JSON r
 Usage
 ===
 
-### JSON solver (source JSON type): Google sheet
+### use Google sheet as json source
 For now, I make only one for google sheet JSON. And this is how to use...
  1. add the following line to html file
   
@@ -15,9 +15,13 @@ For now, I make only one for google sheet JSON. And this is how to use...
   <script src="path/to/jt2html.js"></script>
   ```
 
- 2. use jquery.ajax or some way to get the google sheet json data and call JT2html function as following, here use jquery as example:
+ 2. get your google sheet published, so as the url
+
+ 3. use jquery.ajax or some way to get the google sheet json data and call JT2html function as following, here use jquery as example:
   ```
   $.ajax({
+
+    // change to your url, this url is for demo
     url:"https://spreadsheets.google.com/feeds/list/1huBErviY2ehb7duwyI5mOzc9y3Ia5yBFQTvPaTyVfFM/od6/public/values?alt=json",
     success:function(data){
     
@@ -30,11 +34,14 @@ For now, I make only one for google sheet JSON. And this is how to use...
   });
   ```
 
- 3. JT2html function has at most 5 parameters, the following is how they can be used. (also default setting which does the same thing as `Req();` )
+### About options
+
+JT2html function has at most 5 parameters, the following is how they can be used. (also default setting which does the same thing as `JT2html(data.feed.entry);` )
   ```
   JT2html(
     
     // 1st parameter is the entry array in google sheet json (json.feed.entry)
+    // only this one is required.
     data.feed.entry,
     
     // 2nd parameter is a callback the generation is complete,its first parameter will receive the generated HTML
