@@ -4,105 +4,100 @@ JT2htmlJS
 Json + Template => HTML By Javascript
 Generate HTML from JSON and Template by Javascript. By default,there is a JSON resolver to get the google sheet data as source to generate HTML.
 
-Usage
-===
+## Basic Usage
+
+First, include the engine of course.  
+
+ ```html
+ <script src="path/to/jt2html.js"></script>
+ ```
+
+### Create a JT2htmlJS instance with your desired template
+
+```js
+var jt = JT2html({
+    body: "@{title}:@{list}",
+    title: "@{text}",
+    list: "[@{name}]: @{des} ... ",
+});
+```
+
+The `@{some_variable}` will be replace to the other key or your string in json.  
+
+### Pass a json into it, get the HTML back and paste it to your DOM
+
+```js
+    var html = jt.fromJson([
+        {
+            "type":"title",
+            "text":"JT2HTML DEMO 1"
+        },
+        {
+            "type":"list",
+            "name":"hello1",
+            "des":"1234567890"
+        },
+        {
+            "type":"list",
+            "name":"hello2",
+            "des":"ABCD"
+        }
+    ]);
+
+    jQuery('#test').text(html);
+```
+
+The `html` variable will be `JT2HTML DEMO 2:[hello1]: 1234567890 ... [hello2]: ABCD ...`  
 
 ### use Google sheet as json source
-For now, I make only one for google sheet JSON. And this is how to use...
- 1. add the following line to html file
-  
-  ```
-  <script src="path/to/jt2html.js"></script>
-  ```
 
- 2. get your google sheet published, so as the url
+ * [Go to google get your google sheet published, so as the url, click me if you don't know how to.](https://gist.github.com/chgu82837/83dd10813d82048dbe9e)
+ * Use the follow code to generate a html from your google sheet.
 
- 3. use jquery.ajax or some way to get the google sheet json data and call JT2html function as following, here use jquery as example:
-  ```
-  $.ajax({
-
-    // change to your url, this url is for demo
-    url:"https://spreadsheets.google.com/feeds/list/1huBErviY2ehb7duwyI5mOzc9y3Ia5yBFQTvPaTyVfFM/od6/public/values?alt=json",
-    success:function(data){
-    
-      // display the data
-      console.log(data);
-      
-      // simplest way to use,only give the sheet entry of json
-      JT2html(data.feed.entry);
-    }
+  ```js
+  var jt = JT2html(template);
+  jt.fromGS(GS_url,function(HTML){
+    var body = document.getElementsByTagName('body')[0].innerHTML;
+    document.getElementsByTagName('body')[0].innerHTML = HTML + body;
   });
   ```
 
-### About options
+### JT2htmlJS API
 
-JT2html function has at most 5 parameters, the following is how they can be used. (also default setting which does the same thing as `JT2html(data.feed.entry);` )
-  ```
-  JT2html(
-    
-    // 1st parameter is the entry array in google sheet json (json.feed.entry)
-    // only this one is required.
-    data.feed.entry,
-    
-    // 2nd parameter is a callback the generation is complete,its first parameter will receive the generated HTML
-    // You can specify where to paste these HTML and return true and JT2htmlJS wont paste again (only when return true)
-    function(){},
+ * `JT2html(template,config)`: JT2html instance constructor
+ * `.fromJson(JSON)`: generate a HTML from a json
+ * `.fromGSJson(JSON)`: generate a HTML from a Google sheet Json (`json.feed.entry` object)
+ * `.fromGS(url,success,fail)`: generate a HTML from a `Google sheet url`, you need to assign a callback to get the HTML result (like example above)
+ * `.fromAjax(url,success,fail)`: generate a HTML from a `Json url`, you need to assign a callback to get the HTML result (like example above)
+ * `.setJsonResolver(modifier)`: set your own JsonResolver
 
-    // 3rd parameter is an object containing template for JT's T. The use of it will be introduce later in Template + JSON => HTML section.
-    {
-      body: "<nav class=\"navbar navbar-inverse navbar-fixed-top\" role=\"navigation\">\n    @{title}\n    <div class=\"collapse navbar-collapse\" id=\"bs-example-navbar-collapse-1\">\n        @{list}\n        @{link}\n    </div><!-- /.navbar-collapse -->\n</nav>",
-      title: "<div id=\"@{id}\" class=\"navbar-header @{class}\">\n    <button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\"#bs-example-navbar-collapse-1\">\n        <span class=\"sr-only\">Toggle navigation</span>\n        <span class=\"icon-bar\"></span>\n        <span class=\"icon-bar\"></span>\n        <span class=\"icon-bar\"></span>\n    </button>\n\n    <div id=\"nav_title_bg\" class=\"hidden-xs\" style=\"height:50px\">\n        <a class=\"hidden-xs navbar-brand\" href=\"@{href}\" title=\"@{info}\">@{text}</a>\n    </div>\n    \n    \n    <a class=\"navbar-brand visible-xs\" href=\"@{href}\">@{text}</a>\n    <p class=\"navbar-text visible-xs\">@{info}</p>\n</div>\n\n",
-      list: "<ul id=\"@{id}\" class=\"nav navbar-nav @{class}\">\n    <li class=\"dropdown\">\n        <a href=\"@{href}\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">@{text}<b class=\"caret\"></b></a>\n        <ul class=\"dropdown-menu\">\n            @{}\n        </ul>\n    </li>\n</ul>",
-      link: "<ul id=\"@{id}\" class=\"nav navbar-nav @{class}\">\n    <li><a href=\"@{href}\" target=\"_blank\">@{text}</a></li>\n</ul>",
-      "": "<li id=\"@{id}\" class=\"@{class}\"><a href=\"@{href}\">@{text}</a></li>"
-    },
-    
-    // 4th parameter is config object
-    {
-      // JsonResolver is a function that translate an element into valid element, this will be introduce later in Template + JSON => HTML section.
-      // this example is generated by livescript...
-      JsonResolver: function(aData){
-        var i, v, results$ = {};
-        for (i in aData) {
-          v = aData[i];
-          if (i.substr(0, 4) === "gsx$") {
-            results$[i.replace("gsx$", "")] = v['$t'];
-          }
-        }
-        return results$;
-      },
+### About config
 
-      // info is a boolean, true then enable all debug message
-      info: false,
+The config object can be like below, they are default value for this engine.  
 
-      // root type name, this will be introduce later in Template + JSON => HTML section.
-      root: 'body',
+```js
+{
+  // info is a boolean, true then enable all debug message
+  info: false,
 
-      // defaultValue for a variable, this will be introduce later in Template + JSON => HTML section.
-      defaultValue: {
-        href: '#'
-      }
-    },
+  // root type name, this will be introduce later in Template + JSON => HTML section.
+  root: 'body',
 
-    // 5th parameter is a boolean, true then only return the instance without generate HTML, call instance.fire() by yourself
-    false
-  );
-  ```
+  // pattern is the replacement in your template, this is a regex
+  pattern: /@\{(\w*)\}/,
+
+  // defaultValue for a variable, this will be introduce later in Template + JSON => HTML section.
+  defaultValue: {
+    href: '#'
+  }
+}
+```
 
 Template + JSON => HTML
 ===
-
-The fire function (main function) will call genHTML function shown below, and try to give the complete callback
-If no complete callback or not returning true, fire function will append the HTML to top of the body
-The fire function is called when JT2html(); is called by default.
 
  * genHTML function:
 ![genHTML function](https://raw.github.com/chgu82837/JT2htmlJS/master/_readmeImg/jt2html_genHTML.png)
 
  * genContext function:
 ![genContext function](https://raw.github.com/chgu82837/JT2htmlJS/master/_readmeImg/jt2html_genContext.png)
-
-Using Livescript
-===
-This js is scripted by Livescript and js file is the compiled result.
-check the _src folder and true source file is there
