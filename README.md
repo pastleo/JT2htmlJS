@@ -1,8 +1,10 @@
 JT2htmlJS
 =========
 
-Json + Template => HTML By Javascript
-Generate HTML from JSON and Template by Javascript. By default,there is a JSON resolver to get the google sheet data as source to generate HTML.
+Json + Template => HTML By Javascript  
+Generate HTML from JSON and Template by Javascript. By default,there is a JSON resolver to get the google sheet data as source to generate HTML.  
+
+> This document is very simple I know, but I might improve it ... when I have time ...  
 
 ## Basic Usage
 
